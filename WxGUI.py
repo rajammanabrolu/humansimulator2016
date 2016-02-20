@@ -1,12 +1,7 @@
 import wx, threading, Queue, sys, time
 import os
-#import detect_face
 
 ID_BEGIN=100
-
-def LongRunningProcess(lines_of_output):
-    time.sleep(1)
-
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, id=wx.ID_ANY, title="Health Desk",
