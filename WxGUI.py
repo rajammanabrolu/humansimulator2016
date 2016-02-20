@@ -1,38 +1,36 @@
 import wx, threading, Queue, sys, time
-from wx.lib.newevent import NewEvent
-import detect_face
+import os
+#import detect_face
 
 ID_BEGIN=100
-wxStdOut, EVT_STDDOUT= NewEvent()
-wxWorkerDone, EVT_WORKER_DONE= NewEvent()
 
 def LongRunningProcess(lines_of_output):
     time.sleep(1)
 
+
 class MainFrame(wx.Frame):
-    def __init__(self, parent, id, title):
-        wx.Frame.__init__(self, parent, id, title, size=(300, 300))
-        self.requestQ = Queue.Queue() #create queues
-        self.resultQ = Queue.Queue()
+    def __init__(self, parent, id=wx.ID_ANY, title="Health Desk",
+                 pos = wx.DefaultPosition, size=(400,550)):
 
-        #widgets
-        p = wx.Panel(self)
-        self.output_window = wx.StaticText(p, -1,
-                             style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self.go = wx.Button(p, ID_BEGIN, 'Begin')
-        self.output_window_timer = wx.Timer(self.output_window, -1)
+        wx.Frame.__init__(self, parent, id, title, pos, size)
+        #self.SetIcon(GetMondrianIcon())
+        pn = wx.Panel(self, -1)
+        mainSz = wx.BoxSizer(wx.VERTICAL)
 
-        #frame sizers
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.output_window, 10, wx.EXPAND)
-        sizer.Add(self.go, 1, wx.EXPAND)
-        p.SetSizer(sizer)
+        horSz1 = wx.BoxSizer(wx.HORIZONTAL)
+        mainSz.Add(horSz1, 1, wx.EXPAND | wx.ALL, 5)
 
-        #events
-        wx.EVT_BUTTON(self, ID_BEGIN, self.OnBeginTest)
-        self.output_window.Bind(EVT_STDDOUT, self.OnUpdateOutputWindow)
-        self.output_window.Bind(wx.EVT_TIMER, self.OnProcessPendingOutputWindowEvents)
-        self.Bind(EVT_WORKER_DONE, self.OnWorkerDone)
+        statTxt3 = wx.StaticText(pn, -1, "Popup Linger")
+        horSz1.Add(statTxt3, 3)
+        txtCtrl4 = wx.TextCtrl(pn, -1, "4000")
+        helpstr = "How Long The Popup Will Stay\nAround After It Is Launched"
+        txtCtrl4.SetToolTip(wx.ToolTip(helpstr))
+        horSz1.Add(txtCtrl4, 1)
+
+        #Uncomment the below and hardcode the directory and filename
+        #filehandle=open(os.path.join(self.dirname, self.filename),'w')
+        #filehandle.write(txtCtrl4)
+        #filehandle.close()
 
         menubar = wx.MenuBar()
         file = wx.Menu()
@@ -42,15 +40,16 @@ class MainFrame(wx.Frame):
         about = wx.MenuItem(help, 205, '&About\tCtrl+A', 'Display information about this product')
         file.AppendItem(quit)
         help.AppendItem(about)
-        menubar.Append(file, '&Settings')
+        menubar.Append(file, '&File')
         menubar.Append(help, '&Help')
         self.SetMenuBar(menubar)
         self.Centre()
         self.Bind(wx.EVT_MENU, self.OnQuit, id=105)
         self.Bind(wx.EVT_MENU, self.DisplayHelp, id=205)
+        pn.SetAutoLayout(True)
+        pn.SetSizer(mainSz)
+        pn.Fit()
 
-        #thread
-        self.worker = Worker(self, self.requestQ, self.resultQ)
 
     def OnQuit(self, event):
         self.Close()
@@ -59,59 +58,6 @@ class MainFrame(wx.Frame):
         dlg = wx.MessageDialog(self, "*Insert helpful info here*", "About", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy()
-
-    def OnUpdateOutputWindow(self, event):
-        value = event.text
-        line = value.strip()
-        #if line == "POSE":
-        #    dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
-        #    dlg.ShowModal()
-        #    dlg.Destroy()
-        #elif line == "EYE":
-        #    dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
-        #    dlg.ShowModal()
-        #    dlg.Destroy()
-        #time.sleep(1)
-
-    def OnBeginTest(self, event):
-        lines_of_output=7
-        self.go.Disable()
-        self.worker.beginTest(LongRunningProcess, detect_face.main())
-        self.output_window_timer.Start(50)
-
-    def OnWorkerDone(self, event):
-        self.output_window_timer.Stop()
-        self.go.Enable()
-
-    def OnProcessPendingOutputWindowEvents(self, event):
-        self.output_window.ProcessPendingEvents()
-
-class Worker(threading.Thread):
-    requestID = 0
-    def __init__(self, parent, requestQ, resultQ, **kwds):
-        threading.Thread.__init__(self, **kwds)
-        self.setDaemon(True)
-        self.requestQ = requestQ
-        self.resultQ = resultQ
-        self.start()
-
-    def beginTest(self, callable, *args, **kwds):
-        Worker.requestID +=1
-        self.requestQ.put((Worker.requestID, callable, args, kwds))
-        return Worker.requestID
-
-    def run(self):
-        while True:
-            requestID, callable, args, kwds = self.requestQ.get()
-            self.resultQ.put((requestID, callable(*args, **kwds)))
-            evt = wxWorkerDone()
-            wx.PostEvent(wx.GetApp().frame, evt)
-
-class SysOutListener:
-    def write(self, string):
-        sys.__stdout__.write(string)
-        evt = wxStdOut(text=string)
-        wx.PostEvent(wx.GetApp().frame.output_window, evt)
 
 class MyApp(wx.App):
     def OnInit(self):
@@ -123,5 +69,4 @@ class MyApp(wx.App):
 #entry point
 if __name__ == '__main__':
     app = MyApp(0)
-    sys.stdout = SysOutListener()
     app.MainLoop()
