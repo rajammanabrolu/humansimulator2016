@@ -40,10 +40,8 @@ class MainFrame(wx.Frame):
         file.AppendSeparator()
         quit = wx.MenuItem(file, 105, '&Quit\tCtrl+Q', 'Quit the Application')
         about = wx.MenuItem(help, 205, '&About\tCtrl+A', 'Display information about this product')
-        #popup = wx.MenuItem(help, 305, '&Popup\ttCtrl+P', 'Popup')
         file.AppendItem(quit)
         help.AppendItem(about)
-        #help.AppendItem(popup)
         menubar.Append(file, '&Settings')
         menubar.Append(help, '&Help')
         self.SetMenuBar(menubar)
@@ -58,7 +56,6 @@ class MainFrame(wx.Frame):
         self.Close()
 
     def DisplayHelp(self, event):
-            #self.RunSimpleDemo(event)
         dlg = wx.MessageDialog(self, "*Insert helpful info here*", "About", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy()
@@ -66,15 +63,15 @@ class MainFrame(wx.Frame):
     def OnUpdateOutputWindow(self, event):
         value = event.text
         line = value.strip()
-        if line == "POSE":
-            dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
-            dlg.ShowModal()
-            dlg.Destroy()
-        elif line == "EYE":
-            dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
-            dlg.ShowModal()
-            dlg.Destroy()
-        time.sleep(1)
+        #if line == "POSE":
+        #    dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
+        #    dlg.ShowModal()
+        #    dlg.Destroy()
+        #elif line == "EYE":
+        #    dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
+        #    dlg.ShowModal()
+        #    dlg.Destroy()
+        #time.sleep(1)
 
     def OnBeginTest(self, event):
         lines_of_output=7

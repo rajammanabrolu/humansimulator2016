@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import wx
 
 class face_detect:
     def __init__(self):
@@ -17,11 +18,15 @@ class face_detect:
     def eye_strain(self, frame):
         if self.gap < 7 and self.moving_frame_count >= 600:
             print("EYE")
-
+            dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
+            dlg.ShowModal()
+            dlg.Destroy()
     def posture(self, frame):
         if self.size_average >= (1.25 * self.size_initial) and self.size_initial != 0:
             print("POSE")
-
+            dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
+            dlg.ShowModal()
+            dlg.Destroy()
 def main():
     detect = face_detect()
     while(detect.cam.isOpened()):
