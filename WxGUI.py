@@ -1,14 +1,13 @@
 import wx, threading, Queue, sys, time
 from wx.lib.newevent import NewEvent
+import detect_face
 
 ID_BEGIN=100
 wxStdOut, EVT_STDDOUT= NewEvent()
 wxWorkerDone, EVT_WORKER_DONE= NewEvent()
 
 def LongRunningProcess(lines_of_output):
-    for x in range(lines_of_output):
-        print "I am a line of output (hi!)...."
-        time.sleep(1)
+    time.sleep(1)
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, id, title):
@@ -19,7 +18,7 @@ class MainFrame(wx.Frame):
         #widgets
         p = wx.Panel(self)
         self.output_window = wx.StaticText(p, -1,
-                             style=wx.TE_AUTO_SCROLL|wx.TE_MULTILINE|wx.TE_READONLY)
+                             style=wx.TE_MULTILINE|wx.TE_READONLY)
         self.go = wx.Button(p, ID_BEGIN, 'Begin')
         self.output_window_timer = wx.Timer(self.output_window, -1)
 
@@ -66,12 +65,21 @@ class MainFrame(wx.Frame):
 
     def OnUpdateOutputWindow(self, event):
         value = event.text
-        self.output_window.AppendText(value)
+        line = value.strip()
+        if line == "POSE":
+            dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif line == "EYE":
+            dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
+            dlg.ShowModal()
+            dlg.Destroy()
+        time.sleep(1)
 
     def OnBeginTest(self, event):
         lines_of_output=7
         self.go.Disable()
-        self.worker.beginTest(LongRunningProcess, lines_of_output)
+        self.worker.beginTest(LongRunningProcess, detect_face.main())
         self.output_window_timer.Start(50)
 
     def OnWorkerDone(self, event):

@@ -17,12 +17,10 @@ class face_detect:
     def eye_strain(self, frame):
         if self.gap < 7 and self.moving_frame_count >= 600:
             print("EYE")
-            #return "EYE"
 
     def posture(self, frame):
-        if self.size_average > (1.25 * self.size_initial) and self.size_initial != 0:
+        if self.size_average >= (1.25 * self.size_initial) and self.size_initial != 0:
             print("POSE")
-            #return "POSE"
 
 def main():
     detect = face_detect()
@@ -46,7 +44,6 @@ def main():
                 eyes = detect.eye_cascade.detectMultiScale(face_gray)
                 if len(eyes) < 1 and detect.no_eyes != True:
                     detect.gap += 1
-                    print("BLINK: " + str(detect.gap))
                 elif len(eyes) >= 1:
                     detect.no_eyes = False
                 size = w * h
