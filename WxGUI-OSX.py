@@ -5,7 +5,7 @@ ID_BEGIN=100
 
 class MainPane(wx.Panel):
     def __init__(self, parent, id=wx.ID_ANY, title="Health Desk",
-                 pos = wx.DefaultPosition, size=(900,750)):
+                 pos = wx.DefaultPosition, size=(539, 450)):
 
         wx.Panel.__init__(self, parent=parent)
         #self.SetIcon(GetMondrianIcon())
@@ -20,8 +20,8 @@ class MainPane(wx.Panel):
             rect = self.GetUpdateRegion().GetBox()
             dc.SetClippingRect(rect)
         dc.Clear()
-        bmp = wx.Bitmap("HD.Settings.Screen.png")
-        dc.DrawBitmap(bmp, 0, 0)
+        #bmp = wx.Bitmap("HD.Settings.Screen.png")
+        #dc.DrawBitmap(bmp, -500, -150)
 
 
 class MainFrame(wx.Frame):
@@ -30,7 +30,7 @@ class MainFrame(wx.Frame):
         self.counter1 = 0
         self.counter2 = 0
         """Constructor"""
-        wx.Frame.__init__(self, None, -1, 'Health Desk', size=(550, 500))
+        wx.Frame.__init__(self, None, -1, 'Health Desk', size=(539, 450))
         panel = MainPane(self)
         mainSz = wx.BoxSizer(wx.VERTICAL)
 
@@ -39,33 +39,37 @@ class MainFrame(wx.Frame):
         insizer.Add(horSz1, 0, wx.TOP, 45)
         mainSz.Add(insizer, 0, wx.BOTTOM | wx.LEFT, 20)
 
+        with open('healthdeskrc', 'r') as f:
+            contents = f.read()
+
         statTxt3 = TransparentText(panel, -1, "Popup Interval")
         horSz1.Add(statTxt3, 3)
-        txtCtrl4 = wx.TextCtrl(panel, -1, '300')
+        txtCtrl4 = wx.TextCtrl(panel, -1, str(contents.splitlines()[0]))
         helpstr = "The minimum interval between notifications."
         txtCtrl4.SetToolTip(wx.ToolTip(helpstr))
         horSz1.Add(txtCtrl4, 1)
-        posBtn = wx.Button(panel, id=wx.ID_ANY, label="Disabled")
-        eyeBtn = wx.Button(panel, id=wx.ID_ANY, label="Disabled")
+
+        posBtn = wx.Button(panel, id=wx.ID_ANY, label=contents.splitlines()[1])
+        eyeBtn = wx.Button(panel, id=wx.ID_ANY, label=contents.splitlines()[2])
 
         def onButton(event):
-            replace_line('healthdeskrc', 0, str(txtCtrl4.GetValue()))
+            self.replace_line('healthdeskrc', 0, str(txtCtrl4.GetValue()))
 
         def onButton1(event):
-            replace_line('healthdeskrc', 1, 'PEnabled')
-            self.counter1+=1
+            self.replace_line('healthdeskrc', 1, 'Enabled')
+            self.counter1 = (self.counter1 + 1) % 2
             if self.counter1 % 2 == 0:
                 posBtn.SetLabel('Disabled')
-                replace_line('healthdeskrc', 1, 'PDisabled')
+                self.replace_line('healthdeskrc', 1, 'Disabled')
             else:
                 posBtn.SetLabel('Enabled')
 
         def onButton2(event):
-            replace_line('healthdeskrc', 2, 'EEnabled')
-            self.counter2+=1
+            self.replace_line('healthdeskrc', 2, 'Enabled')
+            self.counter2 = (self.counter2 + 1) % 2
             if self.counter2 % 2 == 0:
                 eyeBtn.SetLabel('Disabled')
-                replace_line('healthdeskrc', 2, 'EDisabled')
+                self.replace_line('healthdeskrc', 2, 'Disabled')
             else:
                 eyeBtn.SetLabel('Enabled')
 
@@ -95,7 +99,7 @@ class MainFrame(wx.Frame):
         horSz4 = wx.BoxSizer(wx.HORIZONTAL)
         horSz4.Add(saveBtn, 1)
         insizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        insizer2.Add(horSz4, 1, wx.LEFT, 350)
+        insizer2.Add(horSz4, 1, wx.LEFT, 351)
         mainSz.Add(insizer2, 1, wx.TOP, 20)
         menubar = wx.MenuBar()
         file = wx.Menu()
@@ -103,12 +107,12 @@ class MainFrame(wx.Frame):
         file.AppendSeparator()
         quit = wx.MenuItem(file, 105, '&Quit\tCtrl+Q', 'Quit the Application')
         about = wx.MenuItem(help, 205, '&About\tCtrl+A', 'Display information about this product')
-        file.AppendItem(quit)
-        help.AppendItem(about)
+        file.Append(quit)
+        help.Append(about)
         menubar.Append(file, '&File')
         menubar.Append(help, '&Help')
         self.SetMenuBar(menubar)
-        self.Centre()
+        #self.Centre()
         self.Bind(wx.EVT_MENU, self.OnQuit, id=105)
         self.Bind(wx.EVT_MENU, self.DisplayHelp, id=205)
         self.SetAutoLayout(True)
@@ -116,7 +120,7 @@ class MainFrame(wx.Frame):
         panel.SetSizer(mainSz)
         mainSz.Fit(panel)
         panel.Layout()
-        self.Center()
+        #self.Center()
 
     def OnQuit(self, event):
         self.Close()
@@ -126,12 +130,12 @@ class MainFrame(wx.Frame):
         dlg.ShowModal() # Show it
         dlg.Destroy()
 
-    def replace_line(file_name, line_num, text):
-        lines = open(file_name, 'r').readlines()
-        lines[line_num] = text
-        out = open(file_name, 'w')
-        out.writelines(lines)
-        out.close()
+    def replace_line(self, file_name, line_num, text):
+        with open(file_name, 'r') as inp:
+            lines = inp.readlines()
+        lines[line_num] = text + '\n'
+        with open(file_name, 'w') as out:
+            out.writelines(lines)
 
 
 class TransparentText(wx.StaticText):
