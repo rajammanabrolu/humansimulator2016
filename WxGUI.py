@@ -49,23 +49,23 @@ class MainFrame(wx.Frame):
         eyeBtn = wx.Button(panel, id=wx.ID_ANY, label="Disabled")
 
         def onButton(event):
-            replace_line('healthdeskrc', 0, str(txtCtrl4.GetValue()))
+            self.replace_line('healthdeskrc', 0, str(txtCtrl4.GetValue()))
 
         def onButton1(event):
-            replace_line('healthdeskrc', 1, 'PEnabled')
+            self.replace_line('healthdeskrc', 1, 'Enabled')
             self.counter1+=1
             if self.counter1 % 2 == 0:
                 posBtn.SetLabel('Disabled')
-                replace_line('healthdeskrc', 1, 'PDisabled')
+                self.replace_line('healthdeskrc', 1, 'Disabled')
             else:
                 posBtn.SetLabel('Enabled')
 
         def onButton2(event):
-            replace_line('healthdeskrc', 2, 'EEnabled')
+            self.replace_line('healthdeskrc', 2, 'Enabled')
             self.counter2+=1
             if self.counter2 % 2 == 0:
                 eyeBtn.SetLabel('Disabled')
-                replace_line('healthdeskrc', 2, 'EDisabled')
+                self.replace_line('healthdeskrc', 2, 'Disabled')
             else:
                 eyeBtn.SetLabel('Enabled')
 
@@ -113,9 +113,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.DisplayHelp, id=205)
         self.SetAutoLayout(True)
         self.SetSizer(mainSz)
-        panel.SetSizer(mainSz)
-        mainSz.Fit(panel)
-        panel.Layout()
+        #panel.SetSizer(mainSz)
+        #mainSz.Fit(panel)
+        #panel.Layout()
         self.Center()
 
     def OnQuit(self, event):
@@ -126,12 +126,12 @@ class MainFrame(wx.Frame):
         dlg.ShowModal() # Show it
         dlg.Destroy()
 
-    def replace_line(file_name, line_num, text):
-        lines = open(file_name, 'r').readlines()
-        lines[line_num] = text
-        out = open(file_name, 'w')
-        out.writelines(lines)
-        out.close()
+    def replace_line(self, file_name, line_num, text):
+        with open(file_name, 'r') as inp:
+            lines = inp.readlines()
+        lines[line_num] = text + '\n'
+        with open(file_name, 'w') as out:
+            out.writelines(lines)
 
 
 class TransparentText(wx.StaticText):
