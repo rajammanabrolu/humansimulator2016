@@ -1,11 +1,11 @@
-import wx, threading, Queue, sys, time
+import wx
 import os
 
 ID_BEGIN=100
 
 class MainPane(wx.Panel):
     def __init__(self, parent, id=wx.ID_ANY, title="Health Desk",
-                 pos = wx.DefaultPosition, size=(539, 450)):
+                 pos = wx.DefaultPosition, size=(900, 450)):
 
         wx.Panel.__init__(self, parent=parent)
         #self.SetIcon(GetMondrianIcon())
@@ -20,8 +20,8 @@ class MainPane(wx.Panel):
             rect = self.GetUpdateRegion().GetBox()
             dc.SetClippingRect(rect)
         dc.Clear()
-        #bmp = wx.Bitmap("HD.Settings.Screen.png")
-        #dc.DrawBitmap(bmp, -500, -150)
+        bmp = wx.Bitmap("HD.Settings.Screen.png")
+        dc.DrawBitmap(bmp, 0, 0)
 
 
 class MainFrame(wx.Frame):
@@ -99,7 +99,7 @@ class MainFrame(wx.Frame):
         horSz4 = wx.BoxSizer(wx.HORIZONTAL)
         horSz4.Add(saveBtn, 1)
         insizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        insizer2.Add(horSz4, 1, wx.LEFT, 351)
+        insizer2.Add(horSz4, 1, wx.LEFT, 337)
         mainSz.Add(insizer2, 1, wx.TOP, 20)
         menubar = wx.MenuBar()
         file = wx.Menu()
@@ -116,7 +116,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnQuit, id=105)
         self.Bind(wx.EVT_MENU, self.DisplayHelp, id=205)
         self.SetAutoLayout(True)
-        self.SetSizer(mainSz)
+        #self.SetSizer(mainSz)
         panel.SetSizer(mainSz)
         mainSz.Fit(panel)
         panel.Layout()
