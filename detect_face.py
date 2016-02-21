@@ -1,6 +1,8 @@
+#coding=utf-8
 import numpy as np
 import cv2
-import wx
+import os
+import time
 
 class face_detect:
     def __init__(self):
@@ -18,17 +20,19 @@ class face_detect:
     def eye_strain(self, frame):
         if self.gap < 7 and self.moving_frame_count >= 600:
             print("EYE")
-            dlg = wx.MessageDialog(self, "EYE", "EYE HEADER", wx.OK)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return True
+
     def posture(self, frame):
         if self.size_average >= (1.25 * self.size_initial) and self.size_initial != 0:
             print("POSE")
-            dlg = wx.MessageDialog(self, "POSE", "POSE HEADER", wx.OK)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return True
+
 def main():
     detect = face_detect()
+    pose = "POSE"
+    eye = "EYE"
+    f = open('./healthdeskrc', 'r')
+    interval = int(f.read())
     while(detect.cam.isOpened()):
         ret, frame = detect.cam.read()
         if detect.red_initial == 0 and detect.red_average > 0 and detect.moving_frame_count > 1:
@@ -39,8 +43,12 @@ def main():
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.blur(gray, (5, 5))
             faces = detect.face_cascade.detectMultiScale(gray, 1.3, 5)
-            detect.posture(frame)
-            detect.eye_strain(frame)
+            if detect.eye_strain(frame):
+                os.system("." + "/terminal-notifier.app/Contents/MacOS/terminal-notifier -title \'Health Desk\' -message \'Rest your eyes! 👁 \' -appIcon \'./Medical.Icon.png\' -group \'+\'")
+                time.sleep(interval)
+            elif detect.posture(frame):
+                os.system("." + "/terminal-notifier.app/Contents/MacOS/terminal-notifier -title \' Health Desk \' -message \'Try not to slouch! 🙇 \' -appIcon \'./Medical.Icon.png\' -group \'+\'")
+                time.sleep(interval)
             #for each face
             for (x,y,w,h) in faces:
                 cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
@@ -60,11 +68,11 @@ def main():
                     if detect.moving_frame_count > 600:
                         detect.moving_frame_count = 0
                     cv2.rectangle(face_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-            cv2.imshow('Video', frame)
+            #cv2.imshow('Video', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     detect.cam.release()
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
 
 if __name__ == "__main__": main()

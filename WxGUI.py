@@ -15,17 +15,27 @@ class MainFrame(wx.Frame):
         horSz1 = wx.BoxSizer(wx.HORIZONTAL)
         mainSz.Add(horSz1, 1, wx.EXPAND | wx.ALL, 5)
 
-        statTxt3 = wx.StaticText(pn, -1, "Popup Linger")
+        statTxt3 = wx.StaticText(pn, -1, "Popup Interval")
         horSz1.Add(statTxt3, 3)
-        txtCtrl4 = wx.TextCtrl(pn, -1, "4000")
-        helpstr = "How Long The Popup Will Stay\nAround After It Is Launched"
+        f = open(os.path.join("./", "healthdeskrc"),'r')
+        value = f.read()
+        txtCtrl4 = wx.TextCtrl(pn, -1, str(value))
+        helpstr = "The minimum interval between notifications."
         txtCtrl4.SetToolTip(wx.ToolTip(helpstr))
         horSz1.Add(txtCtrl4, 1)
 
+        horSz2 = wx.BoxSizer(wx.HORIZONTAL)
+        mainSz.Add(horSz2, 2, wx.EXPAND | wx.ALL, 5)
+
         #Uncomment the below and hardcode the directory and filename
-        #filehandle=open(os.path.join(self.dirname, self.filename),'w')
-        #filehandle.write(txtCtrl4)
-        #filehandle.close()
+
+        def onButton(event):
+            filehandle=open(os.path.join("./", "healthdeskrc"),'w')
+            filehandle.write(str(txtCtrl4.GetValue()))
+            filehandle.close()
+
+        saveBtn = wx.Button(pn, id=wx.ID_ANY, label="Save")
+        saveBtn.Bind(wx.EVT_BUTTON, onButton)
 
         menubar = wx.MenuBar()
         file = wx.Menu()
@@ -50,13 +60,13 @@ class MainFrame(wx.Frame):
         self.Close()
 
     def DisplayHelp(self, event):
-        dlg = wx.MessageDialog(self, "*Insert helpful info here*", "About", wx.OK)
+        dlg = wx.MessageDialog(self, "This is Health Desk, an app to remind users about healthy habits during extended computer use.", "About", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy()
 
 class MyApp(wx.App):
     def OnInit(self):
-        self.frame = MainFrame(None, -1, 'Help Desk')
+        self.frame = MainFrame(None, -1, 'Health Desk')
         self.frame.Show(True)
         self.frame.Center()
         return True
