@@ -41,8 +41,6 @@ class MainFrame(wx.Frame):
 
         statTxt3 = TransparentText(panel, -1, "Popup Interval")
         horSz1.Add(statTxt3, 3)
-        f = open(os.path.join("./", "healthdeskrc"),'r')
-        value = f.read()
         txtCtrl4 = wx.TextCtrl(panel, -1, '300')
         helpstr = "The minimum interval between notifications."
         txtCtrl4.SetToolTip(wx.ToolTip(helpstr))
@@ -51,27 +49,23 @@ class MainFrame(wx.Frame):
         eyeBtn = wx.Button(panel, id=wx.ID_ANY, label="Disabled")
 
         def onButton(event):
-            filehandle=open(os.path.join("./", "healthdeskrc"),'w')
-            filehandle.write(str(txtCtrl4.GetValue()))
-            filehandle.close()
+            replace_line('healthdeskrc', 0, str(txtCtrl4.GetValue()))
 
         def onButton1(event):
-            filehandle1=open(os.path.join("./", "healthdeskrc"),'w')
-            filehandle1.write('PEnabled')
-            filehandle1.close()
+            replace_line('healthdeskrc', 1, 'PEnabled')
             self.counter1+=1
             if self.counter1 % 2 == 0:
                 posBtn.SetLabel('Disabled')
+                replace_line('healthdeskrc', 1, 'PDisabled')
             else:
                 posBtn.SetLabel('Enabled')
 
         def onButton2(event):
-            filehandle2=open(os.path.join("./", "healthdeskrc"),'w')
-            filehandle2.write('EEnabled')
-            filehandle2.close()
+            replace_line('healthdeskrc', 2, 'EEnabled')
             self.counter2+=1
             if self.counter2 % 2 == 0:
                 eyeBtn.SetLabel('Disabled')
+                replace_line('healthdeskrc', 2, 'EDisabled')
             else:
                 eyeBtn.SetLabel('Enabled')
 
@@ -128,6 +122,14 @@ class MainFrame(wx.Frame):
         dlg = wx.MessageDialog(self, "This is Health Desk, an app to remind users about healthy habits during extended computer use.", "About", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy()
+
+    def replace_line(file_name, line_num, text):
+        lines = open(file_name, 'r').readlines()
+        lines[line_num] = text
+        out = open(file_name, 'w')
+        out.writelines(lines)
+        out.close()
+
 
 class TransparentText(wx.StaticText):
   def __init__(self, parent, id=wx.ID_ANY, label='',
