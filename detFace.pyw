@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import time
+from windows_balloon import *
 
 class face_detect:
     def __init__(self):
@@ -45,10 +46,10 @@ def main():
                 gray = cv2.blur(gray, (5, 5))
                 faces = detect.face_cascade.detectMultiScale(gray, 1.3, 5)
                 if detect.eye_strain(frame) and contents[2] == 'Enabled':
-                    os.system("." + "/terminal-notifier.app/Contents/MacOS/terminal-notifier -title \'Health Desk\' -message \'Rest your eyes! 👁 \' -appIcon \'./Medical.Icon.png\' -group \'+\'")
+                    balloon_tip("Health Desk","Rest your eyes!")
                     time.sleep(interval)
                 elif detect.posture(frame):
-                    os.system("." + "/terminal-notifier.app/Contents/MacOS/terminal-notifier -title \' Health Desk \' -message \'Try not to slouch! 🙇 \' -appIcon \'./Medical.Icon.png\' -group \'+\'")
+                    balloon_tip("Health Desk","Try not to slouch!")
                     time.sleep(interval)
                 #for each face
                 for (x,y,w,h) in faces:

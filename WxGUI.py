@@ -1,4 +1,4 @@
-import wx, threading, Queue, sys, time
+import wx
 import os
 
 ID_BEGIN=100
@@ -20,7 +20,7 @@ class MainPane(wx.Panel):
             rect = self.GetUpdateRegion().GetBox()
             dc.SetClippingRect(rect)
         dc.Clear()
-        bmp = wx.Bitmap("HD.Settings.Screen.png")
+        bmp = wx.Bitmap("HD.jpg")
         dc.DrawBitmap(bmp, 0, 0)
 
 
@@ -119,6 +119,7 @@ class MainFrame(wx.Frame):
         self.Center()
 
     def OnQuit(self, event):
+        os.system("taskkill /F /IM pythonw.exe")
         self.Close()
 
     def DisplayHelp(self, event):
